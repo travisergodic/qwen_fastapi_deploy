@@ -29,19 +29,22 @@ processor = AutoProcessor.from_pretrained(CONFIG["MODEL_NAME_OR_PATH"])
 @app.post("/qwen25_vl")
 async def chat(request: ChatRequest):
     try:
-        # 將 base64 image 字串轉為 PIL.Image
-        for message in request.messages:
-            for item in message.content:
-                if item.type == "image" and isinstance(item.image, str):
-                    item.image = decode_base64_image(item.image)
+        # for message in request.messages:
+        #     for item in message.content:
+        #         if item.type == "image" and isinstance(item.image, str):
+        #             print(item.image[:100])
+        #             item.image = decode_base64_image(item.image)
+        #             print(type(item.image))
 
-        # 準備文字輸入
-        text = processor.apply_chat_template(
-            request.messages, tokenize=False, add_generation_prompt=True
-        )
+        # 將 Pydantic 結構轉為 dict，process_vision_info 預期的格式
+        messages_dict = [m.dict() for m in request.messages]
 
-        # 使用 Qwen-VL 提供的視覺處理函數（可處理 image 和 video）
-        image_inputs, video_inputs = process_vision_info(request.messages)
+        print(messages_dict)
+
+
+        # 準備文字與視覺輸入
+        text = processor.apply_chat_template(messages_dict, tokenize=False, add_generation_prompt=True)
+        image_inputs, video_inputs = process_vision_info(messages_dict)
 
         inputs = processor(
             text=[text],
@@ -51,7 +54,7 @@ async def chat(request: ChatRequest):
             return_tensors="pt",
         ).to("cuda")
 
-        # ✅ 模型推理
+        # 模型推理
         generated_ids = model.generate(**inputs, max_new_tokens=request.max_new_tokens, use_cache=True)
         generated_ids_trimmed = [
             out_ids[len(in_ids):] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
