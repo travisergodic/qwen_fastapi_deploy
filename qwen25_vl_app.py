@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from schemas import ChatRequest
 
 
-with open("configs/qwen25vl.yaml.yaml", "r", encoding="utf-8") as f:
+with open("configs/qwen25vl.yaml", "r", encoding="utf-8") as f:
     CONFIG = yaml.safe_load(f)
 
 

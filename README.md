@@ -13,7 +13,7 @@
 ## 执行
 1. **启动服务**
     ```bash
-    uvicorn app:app --host 0.0.0.0 --port 8000
+    uvicorn qwen25_vl_app:app --host 0.0.0.0 --port 8000
     ```
 
 2. **访问服务**
