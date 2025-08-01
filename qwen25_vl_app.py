@@ -36,11 +36,9 @@ async def chat(request: ChatRequest):
         #             item.image = decode_base64_image(item.image)
         #             print(type(item.image))
 
-        # 將 Pydantic 結構轉為 dict，process_vision_info 預期的格式
         messages_dict = [m.dict() for m in request.messages]
 
         print(messages_dict)
-
 
         # 準備文字與視覺輸入
         text = processor.apply_chat_template(messages_dict, tokenize=False, add_generation_prompt=True)

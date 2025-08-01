@@ -19,29 +19,34 @@
 2. **访问服务**
     ```python
     import requests
-    import json
+    from utils import encode_image_to_base64
 
     url = "http://localhost:8000/qwen25_vl"
 
-    # 文本消息结构（注意 image 字段可以是占位）
-    message_dict = [
-        {
-            "role": "user",
-            "content": [
-                {"type": "image", "image": "upload.jpg"},  # 占位，服务端会替换
-                {"type": "text", "text": "请确认图中每一列都打了一个勾。"}
-            ]
-        }
-    ]
-
-    files = {
-        "image": open("local_image.jpg", "rb"),
+    payload = {
+        "messages": [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "image",
+                        "image": encode_image_to_base64("/content/demo2.jpg")
+                    },
+                    {
+                        "type": "text",
+                        "text": "请确认图中每一列都打了一个勾。"
+                    }
+                ]
+            }
+        ],
+        "max_new_tokens": 1000,
+        "temperature": 1.0,
+        "top_p": 1.0,
+        "do_sample": True
     }
-    data = {
-        "message_json": json.dumps(message_dict)
-    }
 
-    response = requests.post(url, data=data, files=files)
+    # 用 json 傳遞正確的 Content-Type
+    response = requests.post(url, json=payload)
 
     print("Status:", response.status_code)
     print("Response:", response.json())
