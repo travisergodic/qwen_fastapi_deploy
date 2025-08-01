@@ -6,6 +6,7 @@ from qwen_vl_utils import process_vision_info
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
+from utils import decode_base64_image
 from schemas import ChatRequest
 
 
@@ -28,10 +29,18 @@ processor = AutoProcessor.from_pretrained(CONFIG["MODEL_NAME_OR_PATH"])
 @app.post("/qwen25_vl")
 async def chat(request: ChatRequest):
     try:
-        # Prepare inputs
+        # 將 base64 image 字串轉為 PIL.Image
+        for message in request.messages:
+            for item in message.content:
+                if item.type == "image" and isinstance(item.image, str):
+                    item.image = decode_base64_image(item.image)
+
+        # 準備文字輸入
         text = processor.apply_chat_template(
             request.messages, tokenize=False, add_generation_prompt=True
         )
+
+        # 使用 Qwen-VL 提供的視覺處理函數（可處理 image 和 video）
         image_inputs, video_inputs = process_vision_info(request.messages)
 
         inputs = processor(
@@ -42,8 +51,8 @@ async def chat(request: ChatRequest):
             return_tensors="pt",
         ).to("cuda")
 
-        # Inference
-        generated_ids = model.generate(**inputs, max_new_tokens=1000, use_cache=True)
+        # ✅ 模型推理
+        generated_ids = model.generate(**inputs, max_new_tokens=request.max_new_tokens, use_cache=True)
         generated_ids_trimmed = [
             out_ids[len(in_ids):] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
         ]

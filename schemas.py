@@ -4,9 +4,15 @@ from pydantic import BaseModel, Field
 
 
 class ContentItem(BaseModel):
-    type: Literal["text", "image"]  # 限制只能为 'text' 或 'image'
-    text: Optional[str] = None
-    image: Optional[str] = None
+    type: Literal["text", "image"]
+    text: Optional[str] = Field(
+        default=None,
+        description="Text content, required when type == 'text'"
+    )
+    image: Optional[str] = Field(
+        default=None,
+        description="Base64-encoded image string, required when type == 'image'"
+    )
 
 class Message(BaseModel):
     role: Literal["user", "assistant"]
