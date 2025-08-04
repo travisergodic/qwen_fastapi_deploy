@@ -12,7 +12,7 @@ from fastapi.responses import JSONResponse
 
 from utils import decode_base64_image, mask_base64_images
 from schemas import ChatRequest
-from logger_helper import setup_logger
+from github.logger_helper import setup_logger
 
 logger = setup_logger()
 
