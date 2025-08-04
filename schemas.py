@@ -24,3 +24,4 @@ class ChatRequest(BaseModel):
     temperature: Optional[float] = Field(default=1.0, ge=0.0, le=2.0)
     top_p: Optional[float] = Field(default=1.0, ge=0.0, le=1.0)
     do_sample: Optional[bool] = True
+    use_cache: Optional[bool] = True

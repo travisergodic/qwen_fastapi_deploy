@@ -13,3 +13,19 @@ def decode_base64_image(image_str: str) -> Image.Image:
     if image_str.startswith("data:image"):
         image_str = image_str.split(",")[1]
     return Image.open(io.BytesIO(base64.b64decode(image_str)))
+
+
+def mask_base64_images(messages: list) -> list:
+    """将消息中的 base64 图片替换为占位符 <image>"""
+    masked = []
+    for msg in messages:
+        new_msg = msg.copy()
+        if isinstance(new_msg.get("content"), list):
+            new_msg["content"] = []
+            for item in msg["content"]:
+                if item.get("type") == "image":
+                    new_msg["content"].append({"type": "image", "image": "<image>"})
+                else:
+                    new_msg["content"].append(item)
+        masked.append(new_msg)
+    return masked
