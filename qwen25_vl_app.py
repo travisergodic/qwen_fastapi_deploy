@@ -16,7 +16,7 @@ logger = setup_logger()
 app = FastAPI()
 
 
-cfg = OmegaConf.load("config.yaml")
+cfg = OmegaConf.load("configs/qwen25vl.yaml")
 
 open(cfg.record_path, "w").close()
 
