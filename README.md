@@ -13,7 +13,7 @@
 ## 执行
 1. **启动服务**
     ```bash
-    uvicorn qwen25_vl_app:app --host 0.0.0.0 --port 8000
+    uvicorn qwen25_vl_app:app --host 0.0.0.0 --port 8500
     ```
 
 2. **访问服务**
@@ -21,7 +21,7 @@
     import requests
     from utils import encode_image_to_base64
 
-    url = "http://localhost:8000/qwen25_vl"
+    url = "http://192.168.137.26:8500/qwen25-vl-7b"
 
     payload = {
         "messages": [
