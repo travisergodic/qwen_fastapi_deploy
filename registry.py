@@ -3,7 +3,7 @@ import logging
 logger = logging.getLogger(__name__) 
 
 class Register:
-    def __init__(self, registry_name, default):
+    def __init__(self, registry_name, default=None):
         self._dict = {}
         self._name = registry_name
         self._default = default

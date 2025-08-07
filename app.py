@@ -6,30 +6,33 @@ from omegaconf import OmegaConf
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
-from schemas import ChatRequest, EmbeddingRequest, RerankRequest
 from predictor import PREDICTOR
 from utils import mask_base64_images
 from logger_helper import setup_logger
-
+from schemas import ChatRequest, EmbeddingRequest, RerankRequest
 
 logger = setup_logger()
 app = FastAPI()
 
 
 cfg = OmegaConf.load("configs/qwen.yaml")
-
 open(cfg["record_path"], "w").close()
 
+model_cfg = cfg["models"]
+record_path = cfg["record_path"]
 
-MODEL = [PREDICTOR.build(type=model_name, **cfg[model_name]) for model_name in cfg]
+MODEL = {
+  model_name: PREDICTOR.build(type=model_name, **model_cfg[model_name]) \
+  for model_name in model_cfg
+}
 
-@app.post("/qwen2.5-vl-7b")
+@app.post("/qwen2.5-vl")
 async def chat(request: ChatRequest):
     request_id = str(uuid.uuid4())
     start_time = time.time()
     record = {"id": request_id}
     try:
-        output_text = MODEL["qwen2.5-vl-7b"].predict(request=request)
+        output_text = MODEL["qwen2.5-vl"].predict(request=request)
         duration = time.time() - start_time 
         logger.info(f"[{request_id}] SUCCESS in {duration:.2f}s")
 
@@ -47,6 +50,7 @@ async def chat(request: ChatRequest):
         error_msg = str(e)
         logger.error(f"[{request_id}] ERROR after {duration:.2f}s: {error_msg}")
 
+        messages_dict = [m.dict() for m in request.messages]
         record.update({
             "status": "error",
             "input": mask_base64_images(messages_dict),
@@ -56,7 +60,7 @@ async def chat(request: ChatRequest):
         return JSONResponse(content={"id": request_id, "error": error_msg}, status_code=500)
 
     finally:
-        with open(cfg["record_path"], "a", encoding="utf-8") as f:
+        with open(record_path, "a", encoding="utf-8") as f:
             f.write(json.dumps(record, ensure_ascii=False) + "\n")
 
 
@@ -95,7 +99,7 @@ async def embed(request: EmbeddingRequest):
         return JSONResponse(content={"id": request_id, "error": error_msg}, status_code=500)
 
     finally:
-        with open(cfg["record_path"], "a", encoding="utf-8") as f:
+        with open(record_path, "a", encoding="utf-8") as f:
             f.write(json.dumps(record, ensure_ascii=False) + "\n")
 
 
@@ -117,7 +121,7 @@ async def rerank(request: RerankRequest):
             "output": scores,
             "duration": round(duration, 2)
         })
-        return JSONResponse(content={"id": request_id, "scores": scores})
+        return JSONResponse(content={"id": request_id, "output": scores})
 
     except Exception as e:
         duration = time.time() - start_time
@@ -133,5 +137,5 @@ async def rerank(request: RerankRequest):
         return JSONResponse(content={"id": request_id, "error": error_msg}, status_code=500)
 
     finally:
-        with open(cfg["record_path"], "a", encoding="utf-8") as f:
+        with open(record_path, "a", encoding="utf-8") as f:
             f.write(json.dumps(record, ensure_ascii=False) + "\n")
