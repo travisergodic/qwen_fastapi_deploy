@@ -21,18 +21,15 @@ open(cfg["record_path"], "w").close()
 model_cfg = cfg["models"]
 record_path = cfg["record_path"]
 
-MODEL = {
-  model_name:PREDICTOR.build(type=model_name, **model_cfg[model_name]) \
-  for model_name in model_cfg
-}
+MODEL = {model_name:PREDICTOR.build(**model_cfg[model_name]) for model_name in model_cfg}
 
-@app.post("/qwen2.5-vl")
+@app.post("/qwen2.5-vl-7b")
 async def chat(request: ChatRequest):
     request_id = str(uuid.uuid4())
     start_time = time.time()
     record = {"id": request_id}
     try:
-        output_text = MODEL["qwen2.5-vl"].predict(request=request)
+        output_text = MODEL["qwen2.5-vl-7b"].predict(request=request)
         duration = time.time() - start_time 
         logger.info(f"[{request_id}] SUCCESS in {duration:.2f}s")
 
@@ -65,14 +62,14 @@ async def chat(request: ChatRequest):
 
 
 
-@app.post("/qwen3-embed")
+@app.post("/qwen3-embed-0.6b")
 async def embed(request: EmbeddingRequest):
     request_id = str(uuid.uuid4())
     start_time = time.time()
     record = {"id": request_id}
 
     try:
-        output = MODEL["qwen3-embed"].predict(request=request)
+        output = MODEL["qwen3-embed-0.6b"].predict(request=request)
         output = output.tolist()  # tensor 转 list，确保 JSON 可序列化
         duration = time.time() - start_time
         logger.info(f"[{request_id}] SUCCESS in {duration:.2f}s")
@@ -104,14 +101,24 @@ async def embed(request: EmbeddingRequest):
 
 
 
-@app.post("/qwen3-rerank")
-async def rerank(request: RerankRequest):
+@app.post("/qwen3-rerank-0.6b")
+async def rerank_06b(request: RerankRequest):
+    return await handle_rerank(request, model_key="qwen3-rerank-0.6b")
+
+
+@app.post("/qwen3-rerank-4b")
+async def rerank_4b(request: RerankRequest):
+    return await handle_rerank(request, model_key="qwen3-rerank-4b")
+
+
+
+async def handle_rerank(request: RerankRequest, model_key: str):
     request_id = str(uuid.uuid4())
     start_time = time.time()
     record = {"id": request_id}
 
     try:
-        scores = MODEL["qwen3-rerank"].predict(request=request)
+        scores = MODEL[model_key].predict(request=request)
         duration = time.time() - start_time
         logger.info(f"[{request_id}] SUCCESS in {duration:.2f}s")
 

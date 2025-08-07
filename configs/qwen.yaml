@@ -1,16 +1,25 @@
 models:
-  qwen2.5-vl:
+  qwen2.5-vl-7b:
+    type: qwen2.5-vl
     model_name_or_path: Qwen/Qwen2.5-VL-7B-Instruct 
     attn_implementation: flash_attention_2
     device_map: auto
 
-  qwen3-embed:
+  qwen3-embed-0.6b:
+    type: qwen3-embed
     model_name_or_path: Qwen/Qwen3-Embedding-0.6B
     attn_implementation: flash_attention_2
     device_map: auto
 
-  qwen3-rerank:
+  qwen3-rerank-0.6b:
+    type: qwen3-rerank
     model_name_or_path: Qwen/Qwen3-Reranker-0.6B
+    attn_implementation: flash_attention_2
+    device_map: auto
+
+  qwen3-rerank-4b:
+    type: qwen3-rerank
+    model_name_or_path: Qwen/Qwen3-Reranker-4B
     attn_implementation: flash_attention_2
     device_map: auto
 
