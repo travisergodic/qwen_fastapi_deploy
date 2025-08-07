@@ -22,7 +22,7 @@ model_cfg = cfg["models"]
 record_path = cfg["record_path"]
 
 MODEL = {
-  model_name: PREDICTOR.build(type=model_name, **model_cfg[model_name]) \
+  model_name:PREDICTOR.build(type=model_name, **model_cfg[model_name]) \
   for model_name in model_cfg
 }
 
@@ -80,8 +80,8 @@ async def embed(request: EmbeddingRequest):
         record.update({
             "status": "success",
             "input": request.dict(),
-            "output": output,
-            "duration": round(duration, 2)
+            "duration": round(duration, 2),
+            # "output": output
         })
         return JSONResponse(content={"id": request_id, "output": output})
 
