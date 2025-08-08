@@ -190,11 +190,12 @@ class JinaEmbeddingV3Predictor:
         self.model = AutoModel.from_pretrained(
             self.model_name_or_path, 
             device_map=self.device_map,
-            torch_dtype=torch.float16
+            torch_dtype=torch.float16,
+            trust_remote_code=True
         ).eval()
 
     @torch.no_grad()
     def predict(self, request):
         texts = request.texts
-        task = request.task
+        task = request.task_label
         return self.model.encode(texts, task=task)

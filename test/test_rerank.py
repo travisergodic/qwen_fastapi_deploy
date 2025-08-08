@@ -1,7 +1,6 @@
 import requests
 
 # 设置 reranker 接口地址
-url = "http://127.0.0.1:8500/qwen3-rerank-0.6b"  # 注意端口是否为 FastAPI 启动端口
 
 # 构造 payload
 payload = {
@@ -17,7 +16,9 @@ payload = {
 }
 
 # 发送 POST 请求
-response = requests.post(url, json=payload)
+
+for url in ("http://127.0.0.1:8500/qwen3-rerank-0.6b", "http://127.0.0.1:8500/qwen3-rerank-4b"):
+    response = requests.post(url, json=payload)
 
 # 打印响应结果
 print("Status:", response.status_code)
