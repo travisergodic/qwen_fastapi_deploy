@@ -1,7 +1,7 @@
 import requests
 
 # 设置 reranker 接口地址
-url = "http://127.0.0.1:8500/qwen3-rerank"  # 注意端口是否为 FastAPI 启动端口
+url = "http://127.0.0.1:8500/qwen3-rerank-0.6b"  # 注意端口是否为 FastAPI 启动端口
 
 # 构造 payload
 payload = {

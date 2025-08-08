@@ -1,7 +1,7 @@
 import requests
 
 # 设置 embedding API 地址
-url = "http://127.0.0.1:8500/qwen3-embed"  # 确保端口与服务一致
+url = "http://127.0.0.1:8500/qwen3-embed-0.6b"  # 确保端口与服务一致
 
 # 构造请求数据
 payload = {

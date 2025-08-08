@@ -6,7 +6,7 @@ sys.path.insert(0, os.getcwd())
 from utils import encode_image_to_base64
 
 
-url = "http://127.0.0.1:8500/qwen2.5-vl"
+url = "http://127.0.0.1:8500/qwen2.5-vl-7b"
 
 payload = {
     "messages": [
