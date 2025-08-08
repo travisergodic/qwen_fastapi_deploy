@@ -17,7 +17,9 @@ bucket = oss2.Bucket(auth, endpoint, bucket_name)
 for oss_key in (
     'qwen25-vl/Qwen2.5-VL-7B-Instruct.tar', 
     'qwen3/models--Qwen--Qwen3-Embedding-0.6B.tar',
-    'qwen3/models--Qwen--Qwen3-Reranker-0.6B.tar'
+    'qwen3/models--Qwen--Qwen3-Reranker-0.6B.tar',
+    'qwen3/models--Qwen--Qwen3-Reranker-4B.tar',
+    'jina/models--jinaai--jina-embeddings-v3.tar'
 ):
     local_file = os.path.join(local_dir, os.path.basename(oss_key))
     bucket.get_object_to_file(oss_key, local_file)

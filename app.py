@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from predictor import PREDICTOR
 from utils import mask_base64_images
 from logger_helper import setup_logger
-from schemas import ChatRequest, EmbeddingRequest, RerankRequest
+from schemas import ChatRequest, EmbeddingRequest, JinaV3EmbeddingRequest, RerankRequest
 
 logger = setup_logger()
 app = FastAPI()
@@ -100,7 +100,6 @@ async def embed(request: EmbeddingRequest):
             f.write(json.dumps(record, ensure_ascii=False) + "\n")
 
 
-
 @app.post("/qwen3-rerank-0.6b")
 async def rerank_06b(request: RerankRequest):
     return await handle_rerank(request, model_key="qwen3-rerank-0.6b")
@@ -110,6 +109,45 @@ async def rerank_06b(request: RerankRequest):
 async def rerank_4b(request: RerankRequest):
     return await handle_rerank(request, model_key="qwen3-rerank-4b")
 
+
+@app.post("/jinav3-embed")
+async def embed(request: JinaV3EmbeddingRequest):
+    request_id = str(uuid.uuid4())
+    start_time = time.time()
+    record = {"id": request_id}
+
+    try:
+        # 調用模型
+        output = MODEL["jinav3-embed"].predict(request=request)
+        output = output.tolist()  # tensor -> list 確保 JSON 可序列化
+        duration = time.time() - start_time
+        logger.info(f"[{request_id}] SUCCESS in {duration:.2f}s")
+
+        record.update({
+            "status": "success",
+            "input": request.dict(),
+            "duration": round(duration, 2),
+            # "output": output 
+        })
+        return JSONResponse(content={"id": request_id, "output": output})
+
+    except Exception as e:
+        duration = time.time() - start_time
+        error_msg = str(e)
+        logger.error(f"[{request_id}] ERROR after {duration:.2f}s: {error_msg}")
+
+        record.update({
+            "status": "error",
+            "input": request.dict(),
+            "error": error_msg,
+            "duration": round(duration, 2)
+        })
+        return JSONResponse(content={"id": request_id, "error": error_msg}, status_code=500)
+
+    finally:
+        # 寫紀錄檔
+        with open(record_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(record, ensure_ascii=False) + "\n")
 
 
 async def handle_rerank(request: RerankRequest, model_key: str):

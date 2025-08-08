@@ -180,3 +180,21 @@ class Qwen3EmbeddingPredictor:
         batch_dict.to(self.model.device)
         outputs = self.model(**batch_dict)
         return last_token_pool(outputs.last_hidden_state, batch_dict['attention_mask'])
+    
+
+@PREDICTOR.register("jinav3-embed")
+class JinaEmbeddingV3Predictor:
+    def __init__(self, model_name_or_path, device_map):
+        self.model_name_or_path = model_name_or_path
+        self.device_map = device_map
+        self.model = AutoModel.from_pretrained(
+            self.model_name_or_path, 
+            device_map=self.device_map,
+            torch_dtype=torch.float16
+        ).eval()
+
+    @torch.no_grad()
+    def predict(self, request):
+        texts = request.texts
+        task = request.task
+        return self.model.encode(texts, task=task)

@@ -40,4 +40,9 @@ class RerankRequest(BaseModel):
     docs: List[str]
     prefix: str = ""
     suffix: str = ""
-    max_length: int = 512
+    max_length: int = 2048
+
+
+class JinaV3EmbeddingRequest(BaseModel):
+    texts: List[str]
+    task_label: str  # e.g., "retrieval.query" or "retrieval.document"

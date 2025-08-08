@@ -23,4 +23,9 @@ models:
     attn_implementation: flash_attention_2
     device_map: auto
 
+  jinav3-embed:
+    type: jinav3-embed
+    model_name_or_path: jinaai/jina-embeddings-v3
+    device_map: auto
+
 record_path: inference_records.jsonl
